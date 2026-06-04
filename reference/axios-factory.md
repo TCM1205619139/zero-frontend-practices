@@ -11,6 +11,7 @@
 - 默认响应拦截会处理业务错误、登录失效、权限错误和系统错误；业务侧不要重复弹通用错误。
 - 需要静默错误提示时传 `notify: false`。
 - 需要业务错误也返回给调用方处理时传 `allowBusinessError: true`。
+- 接口默认都需要鉴权，不需要鉴权的情况，需要在请求配置里传 `authorization: false`。
 - 下载或二进制接口使用 `responseType: 'blob'`。
 
 ## 接口模块样例
