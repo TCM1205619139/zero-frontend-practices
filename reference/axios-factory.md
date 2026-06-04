@@ -45,3 +45,19 @@ export const subscribePlanHTTP = data => {
 ## 竞态请求
 
 需要“只保留最后一次请求结果”的场景（例如搜索、筛选、快速切换 tab）优先使用 `RequestFactory.createLatestRequest()`，避免旧请求覆盖新状态。
+
+## 无感刷新
+
+项目内部已经使用响应拦截器处理了登录失效和权限错误，在定义 API 时，可使用 makeNoneInductiveRequest 创建无感刷新请求，避免登录失效时弹出登录过期提示。
+
+```javascript
+import RequestFactory from '@/utils/request.js'
+
+export const cancelWithdrawal = makeNoneInductiveRequest((data) => {
+  return instance.request({
+    method: 'put',
+    url: '/api/withdrawal/application/cancel',
+    data,
+  })
+})
+```

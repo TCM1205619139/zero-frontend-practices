@@ -83,9 +83,10 @@ description: 在 se-br-client-portal 仓库进行任何前端工作时必须使�
 
 ### API
 
-- API 函数必须使用项目请求工厂模式。新增或修改 API 模块前先阅读 `reference/axios-factory.md`。
-- 新 API 模块需要从 `src/api/index.js` 统一导出。
+- API 函数必须使用项目请求工厂模式。
+- 新 API 模块需要从 `src/api` 统一导出。
 - baseURL 使用环境配置，不要硬编码。
+- 请求相关细则见 `reference/axios-factory.md`。
 
 ### 字体
 
