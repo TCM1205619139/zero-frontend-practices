@@ -62,3 +62,35 @@ export const cancelWithdrawal = makeNoneInductiveRequest((data) => {
   })
 })
 ```
+
+如需要结合竞态请求使用，可以先创建无感刷新实例，再基于该实例创建竞态请求：
+
+```javascript
+// example
+const createDepositOrder = () => {
+  return createOrderRequest.run(({ signal, isLatest }) => {
+    loading.value = true
+    const payload = {
+      requestId: query.value.requestId,
+      accountNo: accountId.value,
+      gatewayId: Number(query.value.gatewayId),
+      sourceCurrency: query.value.source,
+      targetCurrency: query.value.target,
+      sourceAmount: Number(query.value.amount),
+    }
+
+    return requestDepositOrder(payload, { signal })
+      .then(request => {
+        if (isLatest()) {
+          orderDetail.value = request.data
+        }
+        return request
+      })
+      .finally(() => {
+        if (isLatest()) {
+          loading.value = false
+        }
+      })
+  })
+}
+```
