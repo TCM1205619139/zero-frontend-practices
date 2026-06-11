@@ -3,4 +3,25 @@
 1. 书写 class 时，使用连字符分隔单词，例如：`my-class-name`，写之前先想好这个 class 的作用，是否具有复用性，是否具有语义化。
 2. 需要观察src/assets/style/目录下的文件，看看是否有已经定义好的样式可以复用，避免重复定义样式。
 3. 动画类命名建议使用 `animate-` 前缀，例如：`animate-fade-in`，`animate-slide-up`，以便于区分动画类和功能类。同时，动画效果需要符合设计规范，并且在实现时注意性能优化，避免过度使用动画导致页面卡顿，尽量不要在单独的vue文件内定义动画。
-3. 对于，展开，收起，显示，隐藏，等交互性的样式，建议使用 `is-` 前缀，例如：`is-expanded`，`is-collapsed`，`is-visible`，`is-hidden`，以便于区分状态类和功能类。并需要实现过度动画，提升用户体验。
+4. 对于，展开，收起，显示，隐藏，等交互性的样式，建议使用 `is-` 前缀，例如：`is-expanded`，`is-collapsed`，`is-visible`，`is-hidden`，以便于区分状态类和功能类。并需要实现过度动画，提升用户体验。
+5. 使用 scss scope 语法
+    ```scss
+    // good
+    .grand-parent {
+      .parent {
+        .child {
+          .grand-child {
+            // 样式代码
+          }
+        }
+      }
+    }
+    ```
+    ```scss
+    // bad
+    .grand-parent {}
+    .parent {}
+    .child {}
+    .grand-child {}
+    ```
+6. 不允许使用 calc(100vh - xxxx) 这种语法，使用 flex 布局，flex-grow: 1 配合 height: 0 来实现自适应高度。

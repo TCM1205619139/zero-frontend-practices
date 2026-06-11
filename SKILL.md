@@ -56,6 +56,8 @@ description: 在 se-br-client-portal 仓库进行任何前端工作时必须使�
 - 两端需要同一份数据或动作时，创建共享 hook。
 - 设备差异布局保留在各自组件内，不要强行合并。
 - vue 文件补充规则见 `reference/vue.md`。
+- 样式补充规则见 `reference/style.md`。
+- javascript 细则见 `reference/javascript.md`。
 
 ### 样式
 
@@ -69,9 +71,20 @@ description: 在 se-br-client-portal 仓库进行任何前端工作时必须使�
 
 ### Vuetify 和本地组件
 
-- 优先使用本地封装，例如 `SeButton`、`SeTabs`、`SvgIcon`、`ProgressiveImage`、dialog 组件和现有页面组件。
+- 优先使用本地封装，例如 `SeButton`、`SeTabs`、`SvgRenderer`、`ProgressiveImage`、`dialog-adaptor` 等组件和现有页面组件。
 - 只有本地封装不满足需求时，才直接使用 Vuetify 组件。
 - 不要为了单个页面视觉效果全局修改共享组件，除非该修改对所有已有用法都安全。
+
+### Dialog Adaptor
+
+- 业务流程中需要临时弹窗时，优先使用 `src/components/dialog-adaptor/adaptor.js` 的 `makeDialogAdaptor` 或 `makeStateIconDialogAdaptor`，避免在页面里维护 `v-dialog` / `v-bottom-sheet` 的 `visible` 状态和模板结构。
+- `makeDialogAdaptor(ContentComponent, wrapperOptions)` 用于普通内容弹窗；`makeStateIconDialogAdaptor(ContentComponent, wrapperOptions)` 用于带状态图标的成功、警告、邮件类弹窗。
+- 弹窗外壳能力放在 `wrapperOptions`，例如 `props.width`、`props.title`、`props.fullscreen`、`props.state`、`mobile.props.sheet`、`style`、生命周期 `on`。
+- 内容组件入参、事件和插槽放在 `dialog.show({ props, on, slots, style })`，内容组件只负责展示和业务事件，不直接关心 PC dialog 或 H5 bottom sheet 的容器形态。
+- 业务函数里按 `const dialog = makeDialogAdaptor(...)`、`dialog.show(...)` 的命令式模式编排流程；`success`、`confirm`、`cancel` 等业务事件是否调用 `dialog.hide()` 由调用方显式决定。
+- 内容组件 emit `close` 时，adaptor 会自动关闭弹窗；其他业务事件不要在 adaptor 内隐式关闭。
+- PC/H5 差异优先放在 adaptor wrapper 内处理，不要把 `usePCLayout` 分支和弹窗壳结构散落到业务页面模板。
+- 弹窗内容需要自定义插槽时，使用 render function / `h()` 返回 VNode；需要 i18n 插值 DOM 时优先使用 `I18nT`。
 
 ### 资源、SVG 和图标
 
@@ -94,6 +107,72 @@ description: 在 se-br-client-portal 仓库进行任何前端工作时必须使�
 - 不要在组件内重复导入或注册字体，除非确实必要。
 - 字体配置细节见 `reference/font-usage.md`。
 
+### 埋点
+- 事件名称需要放到 `src/constants/pixel-event.js` 统一管理。
+- 页面和组件级的埋点，需要新增一个和业务 vue/js 文件同级的js文件 `use-pixel-data.js`，封装一个 `usePixelData` composable，在内部封装纯方法去调用 `gtmTrack` 方法。
+- 然后组件/页面的 vue 文件或者 hook 文件，需要引入 `usePixelData`，在合适的时机调用 `usePixelData` 内的方法去触发埋点事件。
+- 不允许在公共组件中放埋点（任意文件的 components 文件夹下），最好的方式是通过在公共组件中派发对应的事件，然后在业务页面的hook中进行埋点上报。
+- 根据描述不清楚如何做埋点，或者找不到在哪里做埋点时，可以先跳过这一个点，先完成其他描述明确的，最后任务完成后，询问我，等我后续补充清楚了再完成剩余的。
+- 埋点编码举例：
+```javascript
+// hook.js
+import { usePixelData } from '@/xxxx/use-pixel-data'
+
+export const useXxxxPage = () => {
+  const data1 = ref('')
+  const data2 = ref({})
+  
+    const onClickXxxxButton = () => {
+      // do something
+      // xxxxxxx
+    }
+    
+    const onAsyncClickXxxxButton = async () => {
+      // do something
+      // xxxxxxx
+    }
+    
+    // 业务 hook 中只有需要埋点包装的方法才传入 usePixelData，并由 usePixelData 返回包装后的方法；不需要埋点的方法不要传入，也不要包装，直接从业务 hook 返回。
+    return {
+      ...usePixelData({
+        data1,
+        onClickXxxxButton,
+        onAsyncClickXxxxButton
+      }),
+        data2,
+    }
+}
+
+// use-pixel-data.js
+import { gtmTrack, makeGTMTrackFn } from '@/utils/gtm'
+import { PIXEL_EVENT } from '@/constants/pixel-event'
+
+export const usePixelData = ({
+  data1,
+  onClickXxxxButton,
+  onAsyncClickXxxxButton
+}) => {
+    const trackXxxxEvent = () => {
+        gtmTrack(PIXEL_EVENT.XXXX_EVENT)
+    }
+    
+    const trackAsyncXxxxEvent = () => {
+        gtmTrack(PIXEL_EVENT.ASYNC_XXXX_EVENT, { key: data1.value })
+    }
+    
+    // if need to trigger event when page mounted
+    // 不要将生命周期的埋点放到业务组件中，尽可能吧埋点都放到 use-pixel-data.js 中
+    onMounted(() => {
+        trackXxxxEvent()
+    })
+    
+    return {
+      onClickXxxxButton: makeGTMTrackFn(trackXxxxEvent, onClickXxxxButton),
+      onAsyncClickXxxxButton: makeGTMTrackFn(trackAsyncXxxxEvent, onAsyncClickXxxxButton),
+    }
+}
+```
+
 ### Figma
 
 - 从 Figma URL 实现页面或组件时，如果工具可用，必须先获取 Figma 上下文或截图。
@@ -114,6 +193,7 @@ description: 在 se-br-client-portal 仓库进行任何前端工作时必须使�
 - touched files 的 `eslint` 通过。
 - touched files 的 `git diff --check` 通过。
 - 变更可能影响运行时时，已执行 build 或针对性验证。
+- 修改代码后，需要检查文件中是否存在不应该再使用的方法和组件，如果存在，则需要再确保安全的情况下删除这些方法和组件的相关代码，如果不确定的，需要询问。
 
 ## 回复风格
 
