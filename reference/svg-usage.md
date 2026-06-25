@@ -8,6 +8,7 @@
 - 可复用 icon 子集：`src/assets/icons/<group>`。
 - 页面特有、非 icon 语义 SVG：`src/assets/svg/<feature>`。
 - 位图资源：`src/assets/images/<feature>`。
+- 不在页面或业务组件目录下新建 `assets` 存放资源。
 
 判断标准：如果它表示一个动作、状态、菜单项、控件符号，并且需要按 `color/size` 复用，放 `icons`；如果它是页面插画、商店徽章、品牌图形、下载页专用 SVG，放 `svg/<feature>`。
 
@@ -34,20 +35,21 @@ import SvgRenderer from '@/components/SvgRenderer.vue'
 - 需要跟随文字颜色变化的 SVG，将可变 `fill` 或 `stroke` 改为 `currentColor`。
 - 不要移除 `viewBox`。
 - 不要把页面插画强行改造成 `SvgRenderer`。
+- 不使用 `new URL('../assets/xxx.svg', import.meta.url).href` 引用 SVG。
 - 从 Figma 迁移资源后，搜索旧路径，确认没有遗漏引用。
 
-## 页面专用 SVG 用法
+## 非语义 SVG 用法
 
-页面专用 SVG 可以按普通资源 import：
+非语义 SVG 放在 `src/assets/svg/<feature>`，按 Vue 组件 import 后直接渲染：
 
 ```vue
 <template>
-  <AppStoreSvg class="store-badge" />
+  <AdditionalPersonalInformationSvg class="banner-illustration" aria-hidden="true" />
 </template>
 
 <script setup>
-import AppStoreSvg from '@/assets/svg/download/app-store.svg'
+import AdditionalPersonalInformationSvg from '@/assets/svg/dashboard/additional-personal-information.svg'
 </script>
 ```
 
-这类资源不要放到 `src/assets/icons`，除非它已经变成跨页面、跨场景的通用 icon。
+这类资源不要放到 `src/assets/icons`，除非它已经变成跨页面、跨场景的通用 icon。语义化 icon 使用 `SvgRenderer`，非语义插画不要强行接入 `SvgRenderer`。
