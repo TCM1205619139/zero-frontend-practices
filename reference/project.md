@@ -13,6 +13,7 @@
 - 样式：SCSS + `src/assets/style` token 和全局工具类
 - API：`RequestFactory` 封装 axios
 - 包管理：pnpm
+- 语言：默认 JavaScript，不新增 TypeScript；现有 `.ts` 文件仅作为历史遗留在明确触达时维护。
 
 ## 路径职责
 
@@ -31,12 +32,21 @@
 - `src/assets/images/<feature>`：位图资源。
 - `src/assets/fonts`：字体资源。
 
+## 代码边界
+
+- 只改任务相关代码，不做无关格式化、import 重排、重命名、JS 到 TS 迁移或跨模块治理。
+- 看到历史债时，只在 touched scope 内处理；不确定影响范围时先说明风险，不主动扩大改动面。
+- 页面私有组件默认只在当前 feature 内使用；跨 feature 复用前，先抽到 `src/components` 或明确说明依赖边界。
+- 复杂业务状态优先沉淀为 store getter、页面 computed 或就近 helper，避免菜单、页面、按钮、弹窗各写一套原始状态判断。
+- 路由权限和菜单权限暂不强制重构；但改动 account、subscription、verify 相关逻辑时，需要检查是否影响动态路由、菜单和当前页面操作入口。
+
 ## 命名
 
 - 目录使用 kebab-case 或项目既有小写语义命名，例如 `table-column`、`download-app`、`additional-personal-information-banner`。
 - 组件文件使用 PascalCase，例如 `FirstDepositBanner.vue`。
 - 设备差异入口使用 `pc.vue` / `mobile.vue`。
 - 不要把 PascalCase 组件名直接作为目录名。
+- 新增业务 hook、store、api、constants 使用 `.js`，不要新增 `.ts`。
 
 ## 本地组件优先级
 

@@ -31,6 +31,7 @@
 - 状态 class 使用 `is-` 前缀，例如 `is-active`、`is-expanded`、`is-disabled`。
 - 动画 class 使用 `animate-` 前缀，例如 `animate-fade-in`。
 - class 命名前先判断职责：原子类处理通用视觉规则，组件 class 处理结构语义和组件专属样式。
+- 不要为了通用 flex、gap、字号、颜色新增私有 class；优先组合原子类和项目 token。
 
 ```vue
 <!-- good: 语义 class + 原子类组合 -->
@@ -98,6 +99,7 @@
 - `box-shadow`、渐变、透明色如果已有 token，优先使用 token。
 - 字号优先使用全局字体工具类；只有特殊布局确实不能复用时再写私有样式。
 - 修改旧组件时，如果 touched scope 内已有裸 `10px`、`16px`、硬编码颜色等历史写法，能安全替换为 token 或工具类就顺手替换；不做无关大范围格式化。
+- 不新增静态内联 style；动态样式可以使用 `:style`，但静态布局、字号、颜色、间距应放到 class、工具类或 token 中。
 
 ## 布局
 
