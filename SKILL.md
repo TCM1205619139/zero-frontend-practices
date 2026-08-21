@@ -24,6 +24,13 @@ description: 必须用于 se-br-client-portal 仓库的前端任务，以及任�
 - 新增或修改样式时，必须读取 `reference/style.md`。
 - 当前项目路径、组件体系、Dialog adaptor、资源目录等项目专属规则读取 `reference/project.md`。
 
+### Skill 维护
+
+- 每次新增或修改本 skill 及其 reference 前，必须 review 当前仓库代码、`package.json` 和相关受版本控制配置；外部交接文档只能作为排查线索，不能直接作为事实来源。
+- 项目事实与文档冲突时以当前代码为准；只沉淀能够改变实现或 review 决策的稳定规则，并在 reference 中保留需要复核的源码入口。
+- 不把人员、账号、权限、审批、临时环境状态、完整环境变量清单或易过期的版本快照写入 skill。
+- 修改后运行 skill validator、`git diff --check`，并检查新增 reference 已从 `SKILL.md` 的读取清单正确路由。
+
 ### 项目硬规则
 
 - 本项目默认 JavaScript，禁止新增 TypeScript 文件；新增 Vue SFC 不使用 `<script setup lang="ts">`。该规则优先于通用 `vue-best-practices` 中的 TypeScript 默认建议。
@@ -46,6 +53,9 @@ description: 必须用于 se-br-client-portal 仓库的前端任务，以及任�
 - JS/TS 边界或异步副作用：读取 `reference/javascript.md`。
 - 组件契约、i18n key 或 Vue 模板表达：读取 `reference/vue.md`。
 - 历史债治理、跨 feature 复用或项目边界：读取 `reference/project.md`。
+- 应用启动、认证初始化、动态路由、菜单可见性、account/subscription/verify 联动：读取 `reference/runtime-routing.md`。
+- SSE、WebSocket、实时通知、事件监听或连接生命周期：读取 `reference/realtime.md`。
+- 本地启动、构建、lint、环境变量、故障排查或回归验证：读取 `reference/verification.md`。
 
 ## 通用实现规则
 
